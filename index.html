@@ -1,106 +1,1307 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI 기출문제 풀이 플랫폼</title>
-    <script src="https://tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cloudflare.com">
-    <style>
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
-    </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>AI Advanced 인증 기출문제 풀이</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+<style>
+/* ═══════════════════════════════════════════════
+   DESIGN TOKENS
+═══════════════════════════════════════════════ */
+:root {
+  --bg          : #f0ebe0;
+  --paper       : #faf6ee;
+  --paper-edge  : #e8e0d0;
+  --line        : rgba(160,145,120,0.22);
+  --line-h      : 28px;
+  --hole-bg     : #e4ddd0;
+
+  --ink-0       : #18140a;
+  --ink-1       : #2e2718;
+  --ink-2       : #5a4e38;
+  --ink-3       : #9a8c74;
+  --ink-4       : #c4b89e;
+
+  --red         : #c63d2f;
+  --red-hover   : #a33025;
+  --red-pale    : #f8ebe9;
+  --gold        : #b08020;
+  --gold-pale   : #fdf5e0;
+  --green       : #2a7a50;
+  --green-pale  : #e4f4ec;
+  --blue        : #2a5a8a;
+  --blue-pale   : #e8f0f8;
+
+  --shadow-card : 0 6px 32px rgba(24,20,10,0.14), 0 2px 8px rgba(24,20,10,0.08);
+
+  --radius      : 3px;
+  --serif       : 'Noto Serif KR', Georgia, serif;
+  --sans        : 'Noto Sans KR', sans-serif;
+  --mono        : 'DM Mono', monospace;
+  --ease        : cubic-bezier(.4,0,.2,1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; -webkit-text-size-adjust: 100%; }
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--ink-0);
+  min-height: 100vh;
+  overflow-x: hidden;
+  background-image:
+    repeating-linear-gradient(
+      180deg,
+      transparent 0px,
+      transparent calc(var(--line-h) - 1px),
+      var(--line) calc(var(--line-h) - 1px),
+      var(--line) var(--line-h)
+    );
+  background-attachment: fixed;
+  background-position: 0 12px;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 12px 60px;
+}
+
+.notebook {
+  width: 100%;
+  max-width: 660px;
+  background: var(--paper);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+  position: relative;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.notebook-holes {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 44px;
+  background: var(--hole-bg);
+  border-right: 2px solid var(--paper-edge);
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  padding-top: 28px;
+}
+.hole {
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 2px solid var(--paper-edge);
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.12);
+  margin-bottom: 34px;
+  flex-shrink: 0;
+}
+
+.notebook::after {
+  content: '';
+  position: absolute;
+  left: 62px; top: 0; bottom: 0;
+  width: 1.5px;
+  background: rgba(198,61,47,0.28);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.notebook-body {
+  position: relative;
+  z-index: 3;
+  padding: 32px 28px 40px 76px;
+}
+
+.section { display: none; animation: fadeUp .35s var(--ease); }
+.section.active { display: block; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--red);
+  margin-bottom: 10px;
+}
+.eyebrow::before {
+  content: '';
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--red);
+}
+
+.divider {
+  height: 1px;
+  background: linear-gradient(90deg, var(--paper-edge) 60%, transparent);
+  margin: 16px 0;
+}
+
+.icon-btn {
+  width: 34px; height: 34px;
+  border-radius: var(--radius);
+  border: 1.5px solid var(--paper-edge);
+  background: var(--paper);
+  color: var(--ink-3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color .2s var(--ease), color .2s var(--ease), background .2s var(--ease);
+  flex-shrink: 0;
+}
+.icon-btn:hover { border-color: var(--red); color: var(--red); background: var(--red-pale); }
+.icon-btn svg { pointer-events: none; }
+
+/* ── HOME ── */
+.home-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.home-title-area { flex: 1; min-width: 0; }
+
+.home-title {
+  font-family: var(--serif);
+  font-size: clamp(16px, 4vw, 24px);
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--ink-0);
+  letter-spacing: -.01em;
+  margin-bottom: 5px;
+}
+
+.home-date {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-3);
+  margin-bottom: 4px;
+  opacity: 0.8;
+  letter-spacing: 0.02em;
+}
+
+.home-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-3);
+  background: var(--hole-bg);
+  border: 1px solid var(--paper-edge);
+  border-radius: 2px;
+  padding: 4px 10px;
+  margin-top: 6px;
+}
+.home-meta .dot { color: var(--green); }
+
+.access-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.stat-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  background: var(--hole-bg);
+  border: 1px solid var(--paper-edge);
+  border-radius: 4px;
+  padding: 6px 10px;
+  min-width: 90px;
+}
+.stat-chip-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: .1em;
+  color: var(--ink-3);
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+.stat-chip-value {
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--blue);
+  line-height: 1;
+}
+.stat-chip.today .stat-chip-value { color: var(--red); }
+.stat-chip-unit {
+  font-family: var(--sans);
+  font-size: 10px;
+  color: var(--ink-3);
+  margin-left: 2px;
+}
+
+.field-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  margin-bottom: 12px;
+}
+.count-val {
+  font-family: var(--serif);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--red);
+  line-height: 1;
+  letter-spacing: -.02em;
+}
+.count-val sup {
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--ink-3);
+  letter-spacing: .02em;
+  margin-left: 2px;
+  vertical-align: baseline;
+}
+
+.slider-wrap { margin-bottom: 20px; }
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, var(--red) var(--pct, 0%), var(--paper-edge) var(--pct, 0%));
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  background: var(--paper);
+  border: 3px solid var(--red);
+  box-shadow: 0 2px 8px rgba(198,61,47,.35);
+  cursor: grab;
+  transition: transform .2s var(--ease), box-shadow .2s var(--ease);
+}
+input[type="range"]::-webkit-slider-thumb:active { cursor: grabbing; transform: scale(1.15); }
+input[type="range"]::-moz-range-thumb {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  background: var(--paper);
+  border: 3px solid var(--red);
+  box-shadow: 0 2px 8px rgba(198,61,47,.35);
+  cursor: grab;
+}
+
+.ticks {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 2px 0;
+}
+.ticks span {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--ink-4);
+  letter-spacing: .04em;
+}
+
+.check-group { display: flex; flex-direction: column; gap: 9px; margin-bottom: 24px; }
+
+.check-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1.5px solid var(--paper-edge);
+  border-radius: var(--radius);
+  background: #f5f0e6;
+  cursor: pointer;
+  user-select: none;
+  transition: border-color .18s, background .18s;
+  -webkit-tap-highlight-color: transparent;
+}
+.check-row:hover { border-color: var(--red); background: var(--red-pale); }
+.check-row input[type="checkbox"] { display: none; }
+
+.check-box {
+  width: 20px; height: 20px;
+  border-radius: 3px;
+  border: 2px solid var(--ink-4);
+  background: var(--paper);
+  flex-shrink: 0;
+  margin-top: 1px;
+  position: relative;
+  transition: background .15s, border-color .15s;
+}
+.check-row input:checked + .check-box { background: var(--red); border-color: var(--red); }
+.check-row input:checked + .check-box::after {
+  content: '';
+  position: absolute;
+  left: 4px; top: 1px;
+  width: 7px; height: 11px;
+  border: 2px solid #fff;
+  border-top: none; border-left: none;
+  transform: rotate(45deg);
+}
+.check-info { line-height: 1; }
+.check-title { font-size: 14px; font-weight: 500; color: var(--ink-1); }
+.check-desc  { font-size: 11px; color: var(--ink-3); margin-top: 3px; }
+
+.btn-primary {
+  width: 100%;
+  padding: 16px 20px;
+  background: var(--red);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  font-family: var(--serif);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  cursor: pointer;
+  box-shadow: 0 3px 14px rgba(198,61,47,.38);
+  transition: background .2s, transform .2s var(--ease), box-shadow .2s;
+  position: relative;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,.08) 0%, transparent 60%);
+  pointer-events: none;
+}
+.btn-primary:hover  { background: var(--red-hover); transform: translateY(-2px); box-shadow: 0 6px 22px rgba(198,61,47,.42); }
+.btn-primary:active { transform: translateY(0); box-shadow: 0 2px 8px rgba(198,61,47,.3); }
+.btn-primary:disabled { opacity: .5; cursor: not-allowed; transform: none; pointer-events: none; }
+
+/* ── QUESTION ── */
+.q-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.q-counter {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-3);
+  letter-spacing: .06em;
+}
+.q-counter strong { color: var(--red); font-size: 14px; }
+
+.prog-track {
+  height: 3px;
+  background: var(--paper-edge);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.prog-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--red), #e06050);
+  border-radius: 2px;
+  transition: width .55s var(--ease);
+}
+
+.q-badge {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .1em;
+  color: var(--red);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.q-text {
+  font-family: var(--serif);
+  font-size: clamp(14px, 3.5vw, 17px);
+  font-weight: 600;
+  line-height: 1.75;
+  color: var(--ink-0);
+  margin-bottom: 18px;
+  padding-bottom: 16px;
+  border-bottom: 1px dashed var(--paper-edge);
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+.opts { list-style: none; display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+
+.opt {
+  border: 1.5px solid var(--paper-edge);
+  border-radius: var(--radius);
+  background: #f7f3ea;
+  transition: border-color .18s, background .18s, transform .18s;
+  cursor: pointer;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.opt:not(.locked):hover { border-color: var(--red); background: var(--red-pale); transform: translateX(3px); }
+.opt label {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  padding: 12px 14px;
+  cursor: pointer;
+}
+.opt input[type="radio"] { display: none; }
+
+.opt-num {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  border: 1.5px solid var(--ink-4);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ink-3);
+  flex-shrink: 0;
+  margin-top: 1px;
+  transition: background .15s, border-color .15s, color .15s;
+}
+.opt-text { font-size: 14px; line-height: 1.55; color: var(--ink-1); word-break: keep-all; overflow-wrap: break-word; }
+
+.opt:not(.locked):hover .opt-num { border-color: var(--red); color: var(--red); }
+
+.opt.correct { border-color: var(--green) !important; background: var(--green-pale) !important; transform: none !important; }
+.opt.correct .opt-num { background: var(--green); border-color: var(--green); color: #fff; }
+
+.opt.wrong { border-color: var(--red) !important; background: var(--red-pale) !important; transform: none !important; }
+.opt.wrong .opt-num { background: var(--red); border-color: var(--red); color: #fff; }
+
+.opt.dim { opacity: .38; pointer-events: none; transform: none !important; }
+.opt.locked { cursor: default; }
+.opt.locked label { cursor: default; }
+
+.btn-trio {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 0;
+}
+
+.btn {
+  padding: 13px 6px;
+  border-radius: var(--radius);
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  text-align: center;
+  transition: all .18s var(--ease);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  min-height: 48px;
+}
+.btn:disabled { opacity: .3; cursor: not-allowed; pointer-events: none; }
+
+.btn-ghost   { background: #f0ece2; border-color: var(--paper-edge); color: var(--ink-2); }
+.btn-ghost:hover { border-color: var(--ink-3); color: var(--ink-0); }
+
+.btn-outline { background: transparent; border-color: var(--paper-edge); color: var(--ink-2); }
+.btn-outline:hover { border-color: var(--gold); color: var(--gold); background: var(--gold-pale); }
+
+.btn-solid   { background: var(--red); color: #fff; box-shadow: 0 2px 8px rgba(198,61,47,.28); }
+.btn-solid:hover { background: var(--red-hover); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(198,61,47,.36); }
+.btn-solid:active { transform: none; }
+
+.feedback {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  font-weight: 700;
+  font-size: 14px;
+  margin-top: 14px;
+  margin-bottom: 14px;
+  animation: fadeUp .28s var(--ease);
+}
+.feedback.show { display: flex; }
+.feedback.ok  { background: var(--green-pale); color: var(--green); border: 1.5px solid rgba(42,122,80,.25); }
+.feedback.ng  { background: var(--red-pale);   color: var(--red);   border: 1.5px solid rgba(198,61,47,.25); }
+.feedback-icon { font-size: 22px; line-height: 1; }
+
+.expl {
+  display: none;
+  background: var(--gold-pale);
+  border-left: 3px solid var(--gold);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 14px 16px;
+  margin-top: 14px;
+  animation: fadeUp .32s var(--ease);
+}
+.expl.show { display: block; }
+.expl-head {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 7px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.expl-body { font-size: 13.5px; line-height: 1.72; color: var(--ink-1); word-break: keep-all; overflow-wrap: break-word; }
+
+.dots { display: inline-flex; gap: 4px; }
+.dots span {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--gold);
+  animation: dot 1.1s infinite ease-in-out;
+}
+.dots span:nth-child(2) { animation-delay: .18s; }
+.dots span:nth-child(3) { animation-delay: .36s; }
+@keyframes dot { 0%,80%,100%{transform:scale(0)} 40%{transform:scale(1)} }
+
+/* ── RESULT ── */
+.result-top { display: flex; justify-content: flex-end; margin-bottom: 24px; }
+.result-body { text-align: center; }
+
+.ring-wrap {
+  width: 160px; height: 160px;
+  margin: 0 auto 24px;
+  position: relative;
+}
+.ring-svg { width: 160px; height: 160px; transform: rotate(-90deg); }
+.ring-bg   { fill: none; stroke: var(--paper-edge); stroke-width: 9; }
+.ring-arc  {
+  fill: none;
+  stroke: var(--red);
+  stroke-width: 9;
+  stroke-linecap: round;
+  stroke-dasharray: 440;
+  stroke-dashoffset: 440;
+  transition: stroke-dashoffset 1.3s cubic-bezier(.4,0,.1,1);
+}
+.ring-arc.go { stroke-dashoffset: var(--target); }
+
+.ring-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.ring-score {
+  font-family: var(--serif);
+  font-size: 44px;
+  font-weight: 700;
+  color: var(--red);
+  line-height: 1;
+  letter-spacing: -.03em;
+}
+.ring-unit { font-size: 12px; color: var(--ink-3); margin-top: 2px; }
+
+.result-title { font-family: var(--serif); font-size: 19px; font-weight: 700; color: var(--ink-0); margin-bottom: 6px; }
+.result-desc  { font-size: 13px; color: var(--ink-3); line-height: 1.65; margin-bottom: 24px; word-break: keep-all; }
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 1px;
+  background: var(--paper-edge);
+  border: 1px solid var(--paper-edge);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+.stat { background: #f7f3ea; padding: 16px 8px; text-align: center; }
+.stat-n { font-family: var(--serif); font-size: 26px; font-weight: 700; color: var(--ink-0); line-height: 1; }
+.stat-n.g { color: var(--green); }
+.stat-n.r { color: var(--red); }
+.stat-k { font-family: var(--mono); font-size: 9px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); margin-top: 4px; }
+
+.btn-home-big {
+  width: 100%;
+  padding: 15px 20px;
+  background: transparent;
+  border: 2px solid var(--red);
+  border-radius: var(--radius);
+  color: var(--red);
+  font-family: var(--serif);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  cursor: pointer;
+  transition: all .2s var(--ease);
+  min-height: 52px;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.btn-home-big:hover { background: var(--red); color: #fff; box-shadow: 0 4px 16px rgba(198,61,47,.3); }
+
+/* ── LOADING ── */
+#overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(240,235,224,.85);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 200;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+#overlay.on { display: flex; }
+.spin {
+  width: 36px; height: 36px;
+  border: 3px solid var(--paper-edge);
+  border-top-color: var(--red);
+  border-radius: 50%;
+  animation: spin .75s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.spin-label { font-size: 13px; color: var(--ink-3); letter-spacing: .08em; }
+
+/* ── TOAST ── */
+#toast {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%) translateY(60px);
+  background: var(--ink-0);
+  color: var(--paper);
+  padding: 10px 24px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  z-index: 300;
+  opacity: 0;
+  transition: opacity .25s, transform .25s var(--ease);
+  pointer-events: none;
+  max-width: 90vw;
+  text-align: center;
+}
+#toast.on { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ── MOBILE ── */
+@media (max-width: 480px) {
+  .app { 
+    padding: 20px 0 40px; 
+    justify-content: center; /* 모바일에서도 세로 중앙 유지 */
+  }
+  
+  .notebook { 
+    border-radius: 0; 
+    box-shadow: none; 
+    margin-top: 0; 
+    /* 화면이 아주 길 경우 대비하여 최소 높이 설정 가능 */
+    min-height: 70vh; 
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* 노트북 내부 콘텐츠도 중앙으로 */
+  }
+
+  /* 홈 섹션 내부의 간격 조정 */
+  #sec-home {
+    padding-top: 10px;
+    padding-bottom: 20px;
+  }
+  .notebook-holes { width: 36px; }
+  .notebook::after { left: 52px; }
+  .hole { width: 14px; height: 14px; margin-bottom: 28px; }
+  .notebook-body { padding: 20px 16px 32px 56px; }
+
+  .home-header { flex-direction: column; gap: 14px; }
+
+  .access-stats {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .stat-chip-label {
+    font-size: 7.5px;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    opacity: 0.8;
+  }
+
+  .stat-chip-value { font-size: 15px; white-space: nowrap; }
+  .stat-chip.today .stat-chip-value { color: var(--red); }
+
+  .stat-chip-unit { font-size: 9px; margin-left: 1px; font-weight: 400; }
+
+  .stat-chip {
+    align-items: center;
+    padding: 3px 6px;
+    min-width: 70px;
+    flex: 0 1 auto;
+  }
+
+  .home-title { font-size: 18px; }
+  input[type="range"]::-webkit-slider-thumb { width: 30px; height: 30px; }
+  .check-row { padding: 14px 12px; }
+  .check-title { font-size: 15px; }
+  .q-text { font-size: 15px; line-height: 1.7; }
+  .opt label { padding: 14px 12px; }
+  .opt-text  { font-size: 14px; }
+  .btn-trio { gap: 6px; }
+  .btn { font-size: 12px; padding: 13px 4px; min-height: 50px; }
+  .ring-wrap { width: 140px; height: 140px; }
+  .ring-svg  { width: 140px; height: 140px; }
+  .ring-score { font-size: 38px; }
+  .feedback { padding: 11px 12px; font-size: 13px; }
+}
+
+@media (max-width: 360px) {
+  .notebook-body { padding: 16px 12px 28px 50px; }
+  .notebook-holes { width: 32px; }
+  .notebook::after { left: 46px; }
+  .hole { width: 12px; height: 12px; margin-bottom: 24px; }
+  .btn { font-size: 11px; padding: 12px 3px; }
+  .home-title { font-size: 16px; }
+  .stat-chip-value { font-size: 17px; }
+}
+</style>
 </head>
-<body class="bg-gray-50 h-screen flex flex-col">
+<body>
 
-    <!-- 상단 네비게이션 -->
-    <header class="bg-white border-b px-6 py-3 flex justify-between items-center">
-        <div class="flex items-center gap-4">
-            <h1 class="text-xl font-bold text-blue-600 italic">AI Exam Master</h1>
-            <span class="bg-blue-100 text-blue-700 text-xs font-semibold px-2.5 py-0.5 rounded">2024년 기출문제</span>
+<div id="overlay">
+  <div class="spin"></div>
+  <div class="spin-label" id="spin-label">문제를 준비하는 중...</div>
+</div>
+
+<div id="toast"></div>
+
+<div class="app">
+  <div class="notebook">
+
+    <div class="notebook-holes">
+      <div class="hole"></div><div class="hole"></div>
+      <div class="hole"></div><div class="hole"></div>
+      <div class="hole"></div><div class="hole"></div>
+      <div class="hole"></div><div class="hole"></div>
+    </div>
+
+    <div class="notebook-body">
+
+      <!-- ══ HOME ══ -->
+      <section id="sec-home" class="section active">
+        <div class="home-header">
+          <div class="home-title-area">
+            <div class="eyebrow">SCM실행2그룹</div>
+            <h1 class="home-title">AI Advanced 인증<br>기출문제 풀이</h1>
+            <div class="home-date">Last Updated: 2026.04.16</div>
+            <div class="home-meta">
+              <span class="dot">●</span>
+              <span id="total-label">문제 불러오는 중...</span>
+            </div>
+          </div>
+
+          <div class="access-stats">
+            <div class="stat-chip">
+              <span class="stat-chip-label">총 접속자수</span>
+              <span class="stat-chip-value" id="stat-total">-<span class="stat-chip-unit">명</span></span>
+            </div>
+            <div class="stat-chip today">
+              <span class="stat-chip-label">Today</span>
+              <span class="stat-chip-value" id="stat-today">-<span class="stat-chip-unit">명</span></span>
+            </div>
+          </div>
         </div>
-        <div class="flex gap-4 items-center">
-            <span class="text-sm font-medium text-gray-600">진행률: 12/20 (60%)</span>
-            <button class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 transition">제출하기</button>
+
+        <div class="divider"></div>
+
+        <div style="margin-bottom:20px;">
+          <div class="field-label" style="display: flex; align-items: baseline;">
+            <span style="font-weight: bold; margin-right: 4px;">문항 수</span>
+            <span style="font-size: 11px; color: #888; font-weight: normal; letter-spacing: -0.5px;">
+              ※ 아래 동그라미를 움직이면 문항수가 늘어납니다.
+            </span>
+            <div class="count-val" style="margin-left: auto;">
+              <span id="count-val">10</span><sup>문제</sup>
+            </div>
+          </div>
+
+          <div class="slider-wrap">
+            <input type="range" id="slider" min="10" max="100" step="1" value="10" />
+            <div class="ticks" id="ticks"></div>
+          </div>
         </div>
-    </header>
 
-    <!-- 메인 콘텐츠 영역 -->
-    <main class="flex-1 flex overflow-hidden">
-        
-        <!-- 왼쪽: 문제 영역 -->
-        <section class="w-1/2 p-8 overflow-y-auto custom-scrollbar bg-white border-r">
-            <div class="max-w-2xl mx-auto">
-                <div class="mb-6">
-                    <span class="text-gray-400 font-bold text-lg">Q 12.</span>
-                    <h2 class="text-xl font-semibold mt-2 leading-relaxed">
-                        다음 중 인공지능 모델의 '과적합(Overfitting)'을 방지하기 위한 방법으로 가장 적절하지 않은 것은?
-                    </h2>
-                </div>
-
-                <div class="space-y-4">
-                    <label class="flex items-center p-4 border rounded-xl hover:bg-blue-50 cursor-pointer transition group border-blue-200 bg-blue-50">
-                        <input type="radio" name="q12" class="w-4 h-4 text-blue-600" checked>
-                        <span class="ml-4 text-gray-700">1) 훈련 데이터의 양을 늘린다.</span>
-                    </label>
-                    <label class="flex items-center p-4 border rounded-xl hover:bg-gray-100 cursor-pointer transition group">
-                        <input type="radio" name="q12" class="w-4 h-4 text-blue-600">
-                        <span class="ml-4 text-gray-700">2) 규제(Regularization) 기법을 적용한다.</span>
-                    </label>
-                    <label class="flex items-center p-4 border rounded-xl hover:bg-gray-100 cursor-pointer transition group">
-                        <input type="radio" name="q12" class="w-4 h-4 text-blue-600">
-                        <span class="ml-4 text-gray-700">3) 특성(Feature)의 수를 최대한 늘린다.</span>
-                    </label>
-                    <label class="flex items-center p-4 border rounded-xl hover:bg-gray-100 cursor-pointer transition group">
-                        <input type="radio" name="q12" class="w-4 h-4 text-blue-600">
-                        <span class="ml-4 text-gray-700">4) 드롭아웃(Dropout)을 적용한다.</span>
-                    </label>
-                </div>
+        <div class="check-group">
+          <label class="check-row">
+            <input type="checkbox" id="opt-q" />
+            <div class="check-box"></div>
+            <div class="check-info">
+              <div class="check-title">문제 순서 랜덤화</div>
+              <div class="check-desc">매 회차마다 다른 순서로 출제됩니다</div>
             </div>
-        </section>
-
-        <!-- 오른쪽: AI 피드백 영역 -->
-        <aside class="w-1/2 bg-gray-50 flex flex-col">
-            <div class="p-6 flex-1 overflow-y-auto custom-scrollbar">
-                <!-- AI 인사이트 메시지 -->
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-6">
-                    <div class="flex items-center gap-2 mb-4 text-blue-600 font-bold">
-                        <i class="fas fa-robot"></i>
-                        <span>AI 분석 및 해설</span>
-                    </div>
-                    <p class="text-gray-600 leading-relaxed mb-4">
-                        정답은 <strong class="text-blue-600 underline">3번</strong>입니다. 과적합을 방지하기 위해서는 불필요한 특성을 줄이거나 차원을 축소해야 합니다. 특성 수가 너무 많으면 모델이 훈련 데이터의 노이즈까지 학습하게 됩니다.
-                    </p>
-                    <div class="bg-blue-50 p-4 rounded-lg">
-                        <h4 class="text-sm font-bold text-blue-800 mb-1">관련 핵심 개념</h4>
-                        <p class="text-xs text-blue-600 uppercase font-semibold">#L1/L2_Regularization #Feature_Selection</p>
-                    </div>
-                </div>
-
-                <!-- AI 질문하기(채팅) -->
-                <div class="space-y-4">
-                    <div class="flex gap-3">
-                        <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs">U</div>
-                        <div class="bg-gray-200 px-4 py-2 rounded-2xl rounded-tl-none text-sm max-w-[80%]">
-                            "드롭아웃"이 정확히 어떤 원리인가요?
-                        </div>
-                    </div>
-                </div>
+          </label>
+          <label class="check-row">
+            <input type="checkbox" id="opt-a" />
+            <div class="check-box"></div>
+            <div class="check-info">
+              <div class="check-title">보기 순서 랜덤화</div>
+              <div class="check-desc">선택지가 무작위로 섞여서 표시됩니다</div>
             </div>
+          </label>
+        </div>
 
-            <!-- 하단 입력창 -->
-            <div class="p-4 bg-white border-t">
-                <div class="relative flex items-center">
-                    <input type="text" placeholder="AI에게 이 문제에 대해 더 물어보세요..." 
-                           class="w-full bg-gray-100 border-none rounded-full py-3 px-6 pr-12 focus:ring-2 focus:ring-blue-400 outline-none text-sm">
-                    <button class="absolute right-4 text-blue-600 hover:text-blue-800">
-                        <i class="fas fa-paper-plane"></i>
-                    </button>
-                </div>
+        <button class="btn-primary" id="btn-start" onclick="startQuiz()">
+          문제 풀이 시작 &nbsp;→
+        </button>
+      </section>
+
+      <!-- ══ QUESTION ══ -->
+      <section id="sec-q" class="section">
+        <div class="q-top">
+          <div class="q-counter">
+            문제 &nbsp;<strong id="q-cur">1</strong> / <span id="q-tot">10</span>
+          </div>
+          <button class="icon-btn" onclick="goHome()" title="홈으로">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+              <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="prog-track"><div class="prog-fill" id="prog"></div></div>
+
+        <div class="q-badge" id="q-badge">Q 01</div>
+        <div class="q-text" id="q-text">문제가 표시됩니다.</div>
+
+        <ul class="opts" id="opts"></ul>
+
+        <div class="btn-trio">
+          <button class="btn btn-ghost"   id="btn-prev" onclick="prev()">← 이전</button>
+          <button class="btn btn-outline" onclick="retry()">↺ 다시풀기</button>
+          <button class="btn btn-solid"   id="btn-next" onclick="next()">다음 →</button>
+        </div>
+
+        <div class="feedback" id="feedback">
+          <span class="feedback-icon" id="fb-icon"></span>
+          <span id="fb-msg"></span>
+        </div>
+
+        <div class="expl" id="expl">
+          <div class="expl-head">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            해설
+          </div>
+          <div class="expl-body" id="expl-body"></div>
+        </div>
+      </section>
+
+      <!-- ══ RESULT ══ -->
+      <section id="sec-result" class="section">
+        <div class="result-top">
+          <button class="icon-btn" onclick="goHome()" title="홈으로">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+              <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="result-body">
+          <div class="ring-wrap">
+            <svg class="ring-svg" viewBox="0 0 172 172">
+              <circle class="ring-bg"  cx="86" cy="86" r="70"/>
+              <circle class="ring-arc" id="ring" cx="86" cy="86" r="70"/>
+            </svg>
+            <div class="ring-center">
+              <div class="ring-score" id="score-num">0</div>
+              <div class="ring-unit">점</div>
             </div>
-        </aside>
+          </div>
 
-    </main>
+          <div class="result-title" id="r-title">수고하셨습니다!</div>
+          <div class="result-desc"  id="r-desc"></div>
 
+          <div class="stats">
+            <div class="stat"><div class="stat-n"   id="s-total">-</div><div class="stat-k">총 문항</div></div>
+            <div class="stat"><div class="stat-n g" id="s-ok">-</div>   <div class="stat-k">정답</div></div>
+            <div class="stat"><div class="stat-n r" id="s-ng">-</div>   <div class="stat-k">오답</div></div>
+          </div>
+
+          <button class="btn-home-big" onclick="goHome()">홈으로 돌아가기</button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+
+<script>
+/* ─────────────────────────────────────────────
+   ★ 설정: Apps Script 웹앱 URL을 여기에 입력하세요
+   ───────────────────────────────────────────── */
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxHxoExFfDbVer19Wo8-qjXHoHbD2DmOzwQ39c9D2GeCxeu2QqS11ZQ9-a_svlxSfbd/exec';
+
+/* ─────────────────────────────────────────────
+   Apps Script 호출 헬퍼
+   GET: action + params를 쿼리스트링으로 전달
+   POST: JSON body로 전달 (CORS 우회를 위해 no-cors 사용 시 응답 불가 → jsonp 방식 사용)
+   ───────────────────────────────────────────── */
+function callGAS(action, params = {}) {
+  const url = new URL(APPS_SCRIPT_URL);
+  url.searchParams.set('action', action);
+  Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, typeof v === 'object' ? JSON.stringify(v) : v));
+
+  return fetch(url.toString(), {
+    method: 'GET',
+    redirect: 'follow',
+  })
+    .then(r => r.json())
+    .catch(err => { throw new Error('네트워크 오류: ' + err.message); });
+}
+
+/* ─────────────────────────────────────────────
+   STATE
+   ───────────────────────────────────────────── */
+let S = {
+  questions : [],
+  idx       : 0,
+  answers   : [],
+  dbTotal   : 0,
+  started   : false
+};
+
+/* ─────────────────────────────────────────────
+   INIT
+   ───────────────────────────────────────────── */
+window.addEventListener('DOMContentLoaded', () => {
+  initSlider();
+  loadTotal();
+  loadAccessStats();
+});
+
+function loadTotal() {
+  callGAS('getTotalQuestionCount')
+    .then(n => {
+      S.dbTotal = n;
+      const max = Math.max(10, n);
+      const sl  = document.getElementById('slider');
+      sl.max    = max;
+      sl.value  = Math.min(10, n);
+      buildTicks(max);
+      syncSlider();
+      document.getElementById('total-label').textContent = `총 ${n}문제 수록`;
+    })
+    .catch(() => {
+      document.getElementById('total-label').textContent = '문제 로드 오류';
+    });
+}
+
+function loadAccessStats() {
+  callGAS('getAccessStats')
+    .then(res => {
+      if (!res) return;
+      document.getElementById('stat-total').innerHTML = res.total + '<span class="stat-chip-unit">명</span>';
+      document.getElementById('stat-today').innerHTML = res.today + '<span class="stat-chip-unit">명</span>';
+    })
+    .catch(() => {
+      document.getElementById('stat-total').textContent = '-';
+      document.getElementById('stat-today').textContent = '-';
+    });
+}
+
+/* ─────────────────────────────────────────────
+   SLIDER
+   ───────────────────────────────────────────── */
+function initSlider() {
+  document.getElementById('slider').addEventListener('input', syncSlider);
+}
+
+function syncSlider() {
+  const sl  = document.getElementById('slider');
+  const val = parseInt(sl.value);
+  const min = parseInt(sl.min), max = parseInt(sl.max);
+  const pct = ((val - min) / (max - min)) * 100;
+  sl.style.setProperty('--pct', pct + '%');
+  document.getElementById('count-val').textContent = val;
+}
+
+function buildTicks(max) {
+  const el = document.getElementById('ticks');
+  el.innerHTML = '';
+  for (let v = 10; v <= max; v += 10) {
+    const s = document.createElement('span');
+    s.textContent = v;
+    el.appendChild(s);
+  }
+}
+
+/* ─────────────────────────────────────────────
+   NAVIGATION
+   ───────────────────────────────────────────── */
+function show(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function goHome() {
+  if (S.started && !confirm('홈으로 돌아가면 현재 진행 상황이 초기화됩니다.')) return;
+  S = { questions:[], idx:0, answers:[], dbTotal:S.dbTotal, started:false };
+  loadAccessStats();
+  show('sec-home');
+}
+
+/* ─────────────────────────────────────────────
+   START QUIZ
+   ───────────────────────────────────────────── */
+function startQuiz() {
+  const count  = parseInt(document.getElementById('slider').value);
+  const randQ  = document.getElementById('opt-q').checked;
+  const randA  = document.getElementById('opt-a').checked;
+
+  setLoading(true, '문제를 준비하는 중...');
+
+  // 접속 로그 기록 (응답 무관하게 fire-and-forget)
+  callGAS('logAccess', { count, randomOrder: randQ, randomOptions: randA }).catch(() => {});
+
+  callGAS('getQuestions', { count, randomOrder: randQ, randomOptions: randA })
+    .then(res => {
+      setLoading(false);
+      if (!res.success) { toast(res.error || '오류가 발생했습니다.'); return; }
+      S.questions = res.questions;
+      S.idx       = 0;
+      S.answers   = new Array(res.questions.length).fill(null);
+      S.started   = true;
+      document.getElementById('q-tot').textContent = res.questions.length;
+      show('sec-q');
+      render();
+    })
+    .catch(e => {
+      setLoading(false);
+      toast('문제 로드 실패: ' + (e.message || ''));
+    });
+}
+
+/* ─────────────────────────────────────────────
+   RENDER QUESTION
+   ───────────────────────────────────────────── */
+function render() {
+  const i   = S.idx;
+  const q   = S.questions[i];
+  const tot = S.questions.length;
+  const ans = S.answers[i];
+
+  document.getElementById('q-cur').textContent   = i + 1;
+  document.getElementById('q-badge').textContent = `Q ${String(i+1).padStart(2,'0')}`;
+  document.getElementById('q-text').textContent  = q.question;
+  document.getElementById('prog').style.width    = ((i + 1) / tot * 100) + '%';
+
+  const ul = document.getElementById('opts');
+  ul.innerHTML = '';
+  q.options.forEach((opt, j) => {
+    const num = j + 1;
+    const li  = document.createElement('li');
+    li.className = 'opt' + (ans ? ' locked' : '');
+    li.dataset.n = num;
+
+    if (ans) {
+      if (num === q.answer)        li.classList.add('correct');
+      else if (num === ans.chosen) li.classList.add('wrong');
+      else                         li.classList.add('dim');
+    }
+
+    li.innerHTML = `
+      <label>
+        <input type="radio" name="opt" value="${num}" ${ans ? 'disabled' : ''} />
+        <div class="opt-num">${num}</div>
+        <div class="opt-text">${opt}</div>
+      </label>`;
+
+    if (!ans) li.addEventListener('click', () => pick(num));
+    ul.appendChild(li);
+  });
+
+  if (ans) {
+    showFeedback(ans.correct);
+    loadExpl(q);
+  } else {
+    hideFeedback();
+  }
+
+  document.getElementById('btn-prev').disabled = i === 0;
+  const isLast = i === tot - 1;
+  const btnN   = document.getElementById('btn-next');
+  btnN.textContent = isLast ? '결과 보기' : '다음 →';
+  btnN.onclick     = isLast ? showResult : next;
+}
+
+/* ─────────────────────────────────────────────
+   PICK ANSWER
+   ───────────────────────────────────────────── */
+function pick(chosen) {
+  const i = S.idx;
+  if (S.answers[i]) return;
+
+  const q       = S.questions[i];
+  const correct = chosen === q.answer;
+  S.answers[i]  = { chosen, correct };
+
+  document.querySelectorAll('.opt').forEach(li => {
+    const n = parseInt(li.dataset.n);
+    li.classList.add('locked');
+    li.querySelector('input').disabled = true;
+    if (n === q.answer)    li.classList.add('correct');
+    else if (n === chosen) li.classList.add('wrong');
+    else                   li.classList.add('dim');
+  });
+
+  showFeedback(correct);
+  loadExpl(q);
+}
+
+/* ─────────────────────────────────────────────
+   FEEDBACK
+   ───────────────────────────────────────────── */
+function showFeedback(ok) {
+  const el = document.getElementById('feedback');
+  el.className = 'feedback show ' + (ok ? 'ok' : 'ng');
+  document.getElementById('fb-icon').textContent = ok ? '○' : '✕';
+  document.getElementById('fb-msg').textContent  = ok ? '정답입니다!' : '오답입니다.';
+}
+
+function hideFeedback() {
+  document.getElementById('feedback').className  = 'feedback';
+  document.getElementById('expl').className      = 'expl';
+  document.getElementById('expl-body').innerHTML = '';
+}
+
+/* ─────────────────────────────────────────────
+   EXPLANATION
+   ───────────────────────────────────────────── */
+function loadExpl(q) {
+  const box  = document.getElementById('expl');
+  const body = document.getElementById('expl-body');
+  box.className    = 'expl show';
+  body.textContent = q.explanation || '해설이 제공되지 않는 문제입니다.';
+}
+
+/* ─────────────────────────────────────────────
+   NAVIGATION BUTTONS
+   ───────────────────────────────────────────── */
+function prev() {
+  if (S.idx > 0) { S.idx--; render(); }
+}
+
+function next() {
+  if (!S.answers[S.idx]) { toast('먼저 답을 선택해주세요.'); return; }
+  if (S.idx < S.questions.length - 1) { S.idx++; render(); }
+}
+
+function retry() {
+  S.answers[S.idx] = null;
+  render();
+}
+
+/* ─────────────────────────────────────────────
+   RESULT
+   ───────────────────────────────────────────── */
+function showResult() {
+  if (!S.answers[S.idx]) { toast('먼저 답을 선택해주세요.'); return; }
+
+  const tot = S.questions.length;
+  const ok  = S.answers.filter(a => a?.correct).length;
+  const ng  = tot - ok;
+  const pct = Math.round(ok / tot * 100);
+
+  document.getElementById('s-total').textContent   = tot;
+  document.getElementById('s-ok').textContent      = ok;
+  document.getElementById('s-ng').textContent      = ng;
+  document.getElementById('score-num').textContent = pct;
+
+  const msgs = [
+    [90, '완벽에 가깝습니다! 🎉', 'AI Advanced 인증 준비가 매우 잘 되어 있습니다. 자신감을 가지고 시험에 임하세요.'],
+    [70, '훌륭한 결과입니다!',    '핵심 개념을 잘 이해하고 있습니다. 취약 부분만 보완하면 합격에 가까워집니다.'],
+    [50, '계속 도전하세요!',      '절반 이상 맞혔습니다. 오답 문제를 집중적으로 복습하면 빠르게 향상될 것입니다.'],
+    [ 0, '더 많은 학습이 필요합니다.', '기초 개념부터 차근차근 다시 공부해 보세요. 꾸준한 노력이 합격의 지름길입니다.']
+  ];
+  const [,title,desc] = msgs.find(([t]) => pct >= t);
+  document.getElementById('r-title').textContent = title;
+  document.getElementById('r-desc').textContent  = desc;
+
+  show('sec-result');
+
+  setTimeout(() => {
+    const C   = 2 * Math.PI * 70;
+    const off = C * (1 - pct / 100);
+    const arc = document.getElementById('ring');
+    arc.style.setProperty('--target', off + 'px');
+    arc.style.strokeDashoffset = off;
+    arc.classList.add('go');
+
+    let cur = 0;
+    const step = pct / 45;
+    const t = setInterval(() => {
+      cur = Math.min(cur + step, pct);
+      document.getElementById('score-num').textContent = Math.round(cur);
+      if (cur >= pct) clearInterval(t);
+    }, 22);
+  }, 120);
+}
+
+/* ─────────────────────────────────────────────
+   UTILITIES
+   ───────────────────────────────────────────── */
+function setLoading(on, msg) {
+  document.getElementById('overlay').classList.toggle('on', on);
+  if (msg) document.getElementById('spin-label').textContent = msg;
+}
+
+let _tt;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('on');
+  clearTimeout(_tt);
+  _tt = setTimeout(() => el.classList.remove('on'), 3200);
+}
+</script>
 </body>
 </html>

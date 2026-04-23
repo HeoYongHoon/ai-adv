@@ -984,6 +984,7 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxHxoExFfDbVer1
    GET: action + params를 쿼리스트링으로 전달
    POST: JSON body로 전달 (CORS 우회를 위해 no-cors 사용 시 응답 불가 → jsonp 방식 사용)
    ───────────────────────────────────────────── */
+/*
 function callGAS(action, params = {}) {
   const url = new URL(APPS_SCRIPT_URL);
   url.searchParams.set('action', action);
@@ -996,6 +997,28 @@ function callGAS(action, params = {}) {
     .then(r => r.json())
     .catch(err => { throw new Error('네트워크 오류: ' + err.message); });
 }
+*/
+
+/* 수정된 Apps Script 호출 헬퍼 */
+function callGAS(action, params = {}) {
+  // 구글 주소 대신, 내가 만든 Vercel API 경로를 사용합니다.
+  const url = new URL('/api/gas', window.location.origin); 
+  
+  url.searchParams.set('action', action);
+  Object.entries(params).forEach(([k, v]) => 
+    url.searchParams.set(k, typeof v === 'object' ? JSON.stringify(v) : v)
+  );
+
+  return fetch(url.toString())
+    .then(r => {
+      if (!r.ok) throw new Error('서버 응답 오류');
+      return r.json();
+    })
+    .catch(err => { 
+      throw new Error('회사 방화벽 혹은 네트워크 오류: ' + err.message); 
+    });
+}
+  
 
 /* ─────────────────────────────────────────────
    STATE

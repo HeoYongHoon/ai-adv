@@ -1,14 +1,21 @@
-// Node.js 환경에서 실행되는 서버 코드입니다.
 export default async function handler(req, res) {
-  const GAS_URL = process.env.GAS_URL; // 보안을 위해 환경변수 권장
+  // 원래 사용하시던 구글 주소
+  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxHxoExFfDbVer19Wo8-qjXHoHbD2DmOzwQ39c9D2GeCxeu2QqS11ZQ9-a_svlxSfbd/exec';
+  
+  // 브라우저가 보낸 모든 파라미터를 구글 주소 뒤에 붙여줍니다.
+  const url = new URL(APPS_SCRIPT_URL);
+  Object.entries(req.query).forEach(([k, v]) => url.searchParams.set(k, v));
 
   try {
-    const response = await fetch(GAS_URL);
+    const response = await fetch(url.toString(), {
+      method: 'GET',
+      redirect: 'follow',
+    });
     const data = await response.json();
-
-    // 브라우저에 데이터 전달 (CORS 문제도 자동 해결됨)
+    
+    // 구글에서 받은 결과를 다시 내 브라우저로 전달합니다.
     res.status(200).json(data);
-  } catch (error) {
-    res.status(500).json({ error: 'GAS 연결 실패' });
+  } catch (err) {
+    res.status(500).json({ error: '구글 연결 실패: ' + err.message });
   }
 }
